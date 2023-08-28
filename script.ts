@@ -64,4 +64,9 @@ router.post('/', async (req: Request, res: Response) => {
   await api.createTask([{ ...TASK_CREATE_DATA, entity_id: +lead.id, responsible_user_id: responsibleUserId }])
 })
 
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.post('/task', async (req: Request, res: Response) => {
+  
+})
+
 export default router
