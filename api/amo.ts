@@ -62,8 +62,8 @@ class AmoCRM extends Api {
             .post(`${this.ROOT_PATH}/oauth2/access_token`, {
                 client_id: config.CLIENT_ID,
                 client_secret: config.CLIENT_SECRET,
-                grant_type: "authorization_CODE",
-                CODE: this.CODE,
+                grant_type: "authorization_code",
+                code: this.CODE,
                 redirect_uri: config.REDIRECT_URI,
             })
             .then((res) => {
@@ -83,16 +83,16 @@ class AmoCRM extends Api {
         try {
             const content = fs.readFileSync(this.AMO_TOKEN_PATH).toString();
             const token = JSON.parse(content);
-            this.ACCESS_TOKEN = token.ACCESS_TOKEN;
-            this.REFRESH_TOKEN = token.REFRESH_TOKEN;
+            this.ACCESS_TOKEN = token.access_token;
+            this.REFRESH_TOKEN = token.refresh_token;
             return Promise.resolve(token);
         } catch (error) {
             this.logger.error(`Ошибка при чтении файла ${this.AMO_TOKEN_PATH}`, error);
             this.logger.debug("Попытка заново получить токен");
             const token = await this.requestAccessToken();
             fs.writeFileSync(this.AMO_TOKEN_PATH, JSON.stringify(token));
-            this.ACCESS_TOKEN = token.ACCESS_TOKEN;
-            this.REFRESH_TOKEN = token.REFRESH_TOKEN;
+            this.ACCESS_TOKEN = token.access_token;
+            this.REFRESH_TOKEN = token.refresh_token;
             return Promise.resolve(token);
         }
     };
@@ -110,8 +110,8 @@ class AmoCRM extends Api {
                 this.logger.debug("Токен успешно обновлен");
                 const token = res.data;
                 fs.writeFileSync(this.AMO_TOKEN_PATH, JSON.stringify(token));
-                this.ACCESS_TOKEN = token.ACCESS_TOKEN;
-                this.REFRESH_TOKEN = token.REFRESH_TOKEN;
+                this.ACCESS_TOKEN = token.access_token;
+                this.REFRESH_TOKEN = token.refresh_token;
                 return token;
             })
             .catch((err) => {
@@ -140,7 +140,7 @@ class AmoCRM extends Api {
                     },
                 }
             )
-            .then((res) => res.data);
+            .then((res) => res.data)
     });
 
     // Получить контакт по id
@@ -164,6 +164,31 @@ class AmoCRM extends Api {
             })
             .then((res) => res.data);
     });
+
+    // Получить связей сделки по id
+    getLeadLinks = this.authChecker((id) => {
+        return axios
+            .get(`${this.ROOT_PATH}/api/v4/leads/${id}/links`, {
+                headers: {
+                    Authorization: `Bearer ${this.ACCESS_TOKEN}`,
+                },
+            })
+            .then((res) => res.data);
+    });
+
+    // Обновить сделку по id 
+    updateDeals = this.authChecker((id, data) => {
+		return axios.patch(`${this.ROOT_PATH}/api/v4/leads/${id}`, data, {
+			headers: {
+				Authorization: `Bearer ${this.ACCESS_TOKEN}`,
+			},
+		}).catch((e) => {
+            console.log(e.response.data['validation-errors'][0].errors)
+        });
+	});
+
+
+
 }
 
 export default AmoCRM; 

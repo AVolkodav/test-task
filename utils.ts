@@ -27,7 +27,7 @@ const getFieldValues = (customFields:Array<customField | custom_fields>, fieldId
         ? customFields.find((item) => String(item.field_id || item.id) === String(fieldId))
         : undefined;
     const values = field ? field.values : [];
-    return values.map(item => item.value);
+    return values.map((item: any) => item.value);
 };
 
 const getAllPages = async (request: ({page, limit }: requestParameters) => Promise<any>, page = 1, limit = 200) => {

@@ -1,14 +1,15 @@
 import express from "express";
-import { Request } from "express";
+import { Request, Response } from "express";
 import  AmoCRM  from "./api/amo";
 import { mainLogger } from "./logger"
 import config from "./config";
+import router from './script';
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use('/', router);
 
 app.listen(config.PORT,()=>mainLogger.debug('Server started on ', config.PORT))
 
@@ -22,3 +23,4 @@ app.get("/login", async (req : Request) => {
 		.then(() => mainLogger.debug(`Авторизация при установке виджета для ${subDomain} прошла успешно`))
 		.catch((err:any) => mainLogger.debug("Ошибка авторизации при установке виджета ", subDomain, err.data));
 });
+
