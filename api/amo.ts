@@ -101,8 +101,8 @@ class AmoCRM extends Api {
       .post(`${this.ROOT_PATH}/oauth2/access_token`, {
         client_id: config.CLIENT_ID,
         client_secret: config.CLIENT_SECRET,
-        grant_type: 'REFRESH_TOKEN',
-        REFRESH_TOKEN: this.REFRESH_TOKEN,
+        grant_type: 'refresh_token',
+        refresh_token: this.REFRESH_TOKEN,
         redirect_uri: config.REDIRECT_URI
       })
       .then((res) => {
@@ -207,6 +207,29 @@ class AmoCRM extends Api {
       console.log(e.response.data['validation-errors'][0].errors)
     })
   })
+
+  // Получить задачу по id
+  getTaskById = this.authChecker(async (id) => {
+    return await axios.get(`${this.ROOT_PATH}/api/v4/tasks/${id}`, {
+      headers: {
+        Authorization: `Bearer ${this.ACCESS_TOKEN}`
+      }
+    }).catch((e) => {
+      console.log(e.response.data['validation-errors'][0].errors)
+    })
+  })
+
+// Добавить примечание к типу entity_type по entity_id
+  createNote = this.authChecker(async (data, type, id) => {
+    return await axios.post(`${this.ROOT_PATH}/api/v4/${type}/${id}/notes`, data, {
+      headers: {
+        Authorization: `Bearer ${this.ACCESS_TOKEN}`
+      }
+    }).catch((e) => {
+      console.log(e.response.data.errors[0])
+    })
+  })
+
 }
 
 export default AmoCRM
