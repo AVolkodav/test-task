@@ -2,7 +2,7 @@ import express from 'express';
 import { type Request, type Response } from 'express';
 import config from './config';
 import AmoCRM from './api/amo';
-import {getTotalSum, getMainContactId, getTommorowDate} from './utils';
+import {getTotalSum, getMainContactId, getTommorowDate, taskIsExist} from './utils';
 
 const router = express.Router();
 const SERVICE_FIELD_ID = 1212207;
@@ -15,6 +15,29 @@ const TASK_CREATE_DATA = {
     text: 'Проверить бюджет',
     entity_type: 'leads'
 };
+
+const TASK_TEMPLATE = {
+    id: 17606907,
+    created_by: 0,
+    updated_by: 0,
+    created_at: 0,
+    updated_at: 0,
+    responsible_user_id: 0,
+    group_id: 0,
+    entity_id: 26190201,
+    entity_type: 'leads',
+    duration: 0,
+    is_completed: false,
+    task_type_id: CHECK_TASK_TYPE_ID,
+    text: 'Проверить бюджет',
+    complete_till: 0,
+    account_id: 0,
+    _links: { 
+        self: {
+            href: "",
+        } 
+    },
+}
 
 const NOTE_DATA_TEMPLATE = {
     note_type: 'common',
@@ -50,12 +73,31 @@ router.post('/', async (req: Request, res: Response) => {
         const price = getTotalSum(contact.custom_fields_values, checkedServices);
         await api.updateDeals(lead.id, {id: lead.id, price});
     }
+
+    const tasksList = await api.getTasksByEntityId(lead.id);
+    if (tasksList) {
+        const leadTasks = tasksList._embedded.tasks;
+        if (taskIsExist(TASK_TEMPLATE, leadTasks)) {
+            return;
+        }
+        console.log(leadTasks);
+    }
+
     const tommorow = getTommorowDate(); 
-    await api.createTask([{ ...TASK_CREATE_DATA, complete_till: tommorow, entity_id: +lead.id, responsible_user_id: +lead.responsible_user_id }]);
+    await api.createTask([{ ...TASK_CREATE_DATA,
+        complete_till: tommorow,
+        entity_id: +lead.id,
+        responsible_user_id: +lead.responsible_user_id 
+    }]);
 })
 
 router.post('/task', async (req: Request, res: Response) => {
     const [task] = req.body.task.update;
+    const [currentTask] = await api.getTasksByEntityId(task.element_id);
+    if (currentTask) {
+        return;
+    }
+    
     if (task) {        
         const isComplete = +task.status === COMPLETE_TASK_STATUS && +task.action_close === COMPLETE_TASK_ACTION_CLOSE;
         if (isComplete) {

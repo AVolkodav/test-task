@@ -230,6 +230,17 @@ class AmoCRM extends Api {
     })
   })
 
+  // Получить все задачи, связанные со сделкой, по id
+  getTasksByEntityId = this.authChecker(async (id) => {
+    return await axios
+      .get(`${this.ROOT_PATH}/api/v4/tasks?filter[is_completed]=0&filter[entity_id][]=${id}`, {
+        headers: {
+          Authorization: `Bearer ${this.ACCESS_TOKEN}`
+        }
+      })
+      .then((res) => res.data)
+  })
+
 }
 
 export default AmoCRM

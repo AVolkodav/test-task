@@ -1,6 +1,7 @@
 import moment from "moment";
 import {Customfield, CustomfieldValues} from "./types/customField/customField"
 import { Link } from "./types/entityLinks/link";
+import { Task } from "./types/task/task"
 
 const getTodayDateTime = ():string => moment().format("YYYY-MM-DD HH:MM:ss");
 
@@ -103,6 +104,19 @@ const getTommorowDate = () : number => {
     return Math.round(+date/1000); // перевод из милисекунд в секунды
 }
 
+// проверяет, существует ли задача в списке задач 
+const taskIsExist = (newTask: Task, tasks: Task[]):boolean => {
+    let result = false;
+    tasks.forEach(task => {
+        if (task.task_type_id === newTask.task_type_id &&
+            task.text === newTask.text &&
+            !task.is_completed) {
+            result = true;
+        }
+    });
+    return result;
+}
+
 export {
 	getClearPhoneNumber,
 	getFieldValue,
@@ -116,4 +130,5 @@ export {
     getMainContactId,
     getTotalSum,
     getTommorowDate,
+    taskIsExist
 };
