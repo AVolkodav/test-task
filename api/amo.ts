@@ -219,9 +219,9 @@ class AmoCRM extends Api {
     })
   })
 
-// Добавить примечание к типу entity_type по entity_id
-  createNote = this.authChecker(async (data, type, id) => {
-    return await axios.post(`${this.ROOT_PATH}/api/v4/${type}/${id}/notes`, data, {
+// Добавить примечание к сделке по id
+  createNoteById = this.authChecker(async (data, id) => {
+    return await axios.post(`${this.ROOT_PATH}/api/v4/leads/${id}/notes`, data, {
       headers: {
         Authorization: `Bearer ${this.ACCESS_TOKEN}`
       }
