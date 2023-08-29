@@ -3,7 +3,7 @@ import { Request, Response } from 'express'
 import  AmoCRM  from './api/amo'
 import { mainLogger } from './logger'
 import config from './config'
-import router from './script'
+import router from './router/router'
 
 const app = express()
 
