@@ -6,7 +6,7 @@ export type Customfield = {
     values?: Array<CustomfieldValues>
 }
 
-type CustomfieldValues = {
+export type CustomfieldValues = {
     value?: string | boolean | number,
     enum_id?: number,
     enum?: string,

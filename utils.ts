@@ -1,5 +1,6 @@
 import moment from "moment";
-import {Customfield} from "./types/customField/customField"
+import {Customfield, CustomfieldValues} from "./types/customField/customField"
+import { Link } from "./types/entityLinks/link";
 
 const getTodayDateTime = ():string => moment().format("YYYY-MM-DD HH:MM:ss");
 
@@ -69,12 +70,13 @@ const getUniqNumbers = (numbers:number[]):number[] => {
 
 // функция получает на вход массив с ценами услуг и выбранные услуги,
 // возвращает общую стоимость всех услуг
-const getTotalSum = (contactFields: any, checkedSevices: any): number => {
+const getTotalSum = (contactFields: Array<Customfield>, checkedSevices: Array<CustomfieldValues>): number => {
     let totalSum = 0;
     for (const service of checkedSevices) {
         for (const field of contactFields) {
             if (field.field_name === service.value) {
-                totalSum += +field.values[0].value;
+                const [values] = field.values? field.values : [{value: 0}];  
+                totalSum += values.value? +values.value : 0;
                 break;
             }
         }
@@ -83,13 +85,22 @@ const getTotalSum = (contactFields: any, checkedSevices: any): number => {
 }
 
 // функция получает список контактов у сделки, возвращает id основного контакта
-const getMainContactId = (links: any): number => {
+const getMainContactId = (links: Link[]): number => {
     for (const link of links) {
-        if (link.metadata.main_contact === true) {
-            return link.to_entity_id;
+        if (link.metadata) {
+            if (link.metadata.main_contact) {
+                return link.to_entity_id ? link.to_entity_id : 0;
+            }
         }
     }
-    return -1;
+    return 0;
+}
+
+// возвращает завтрашний день в формате числа в секундах
+const getTommorowDate = () : number => {
+    const date = new Date();
+    date.setDate(date.getDate() + 1); // переход на следующий день
+    return Math.round(+date/1000); // перевод из милисекунд в секунды
 }
 
 export {
@@ -104,4 +115,5 @@ export {
     getHuminizeTimeFromUnix,
     getMainContactId,
     getTotalSum,
+    getTommorowDate,
 };

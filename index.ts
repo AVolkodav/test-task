@@ -13,7 +13,6 @@ app.use('/', router)
 
 app.listen(config.PORT,()=>{ mainLogger.debug('Server started on ', config.PORT) })
 
-
 app.get('/login', async (req : Request) => {
 	const authCode = String(req.query.code)
 	const subDomain = String(req.query.referer).split('.')[0]
