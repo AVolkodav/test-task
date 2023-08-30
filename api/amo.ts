@@ -8,6 +8,7 @@ import {
     getUserLogger
 } from "../logger";
 import log4js from "log4js"
+import { OauthData } from "../types/oauth/oauthData";
 
 
 axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
@@ -62,8 +63,8 @@ class AmoCRM extends Api {
             .post(`${this.ROOT_PATH}/oauth2/access_token`, {
                 client_id: config.CLIENT_ID,
                 client_secret: config.CLIENT_SECRET,
-                grant_type: "authorization_CODE",
-                CODE: this.CODE,
+                grant_type: "authorization_code",
+                code: this.CODE,
                 redirect_uri: config.REDIRECT_URI,
             })
             .then((res) => {
@@ -102,8 +103,8 @@ class AmoCRM extends Api {
             .post(`${this.ROOT_PATH}/oauth2/access_token`, {
                 client_id: config.CLIENT_ID,
                 client_secret: config.CLIENT_SECRET,
-                grant_type: "REFRESH_TOKEN",
-                REFRESH_TOKEN: this.REFRESH_TOKEN,
+                grant_type: "refresh_token",
+                refresh_token: this.REFRESH_TOKEN,
                 redirect_uri: config.REDIRECT_URI,
             })
             .then((res) => {
@@ -164,6 +165,12 @@ class AmoCRM extends Api {
             })
             .then((res) => res.data);
     });
+
+    // Получить access и refresh токены 
+    async getTokens(data: OauthData) {
+        return axios.post(`${this.ROOT_PATH}/oauth2/access_token`, data)
+                    .then(res => res.data);
+    }
 }
 
 export default AmoCRM; 
