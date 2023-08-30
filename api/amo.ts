@@ -63,7 +63,7 @@ class AmoCRM extends Api {
             .post(`${this.ROOT_PATH}/oauth2/access_token`, {
                 client_id: config.CLIENT_ID,
                 client_secret: config.CLIENT_SECRET,
-                grant_type: "authorization_code",
+                grant_type: GrantType.authorizationCode,
                 code: this.CODE,
                 redirect_uri: config.REDIRECT_URI,
             })
@@ -103,7 +103,7 @@ class AmoCRM extends Api {
             .post(`${this.ROOT_PATH}/oauth2/access_token`, {
                 client_id: config.CLIENT_ID,
                 client_secret: config.CLIENT_SECRET,
-                grant_type: "refresh_token",
+                grant_type: GrantType.refreshToken,
                 refresh_token: this.REFRESH_TOKEN,
                 redirect_uri: config.REDIRECT_URI,
             })

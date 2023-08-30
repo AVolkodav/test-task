@@ -7,16 +7,22 @@ import { deleteTokens, saveTokens} from "../utils";
 const router = express.Router();
 const api = new AmoCRM(config.SUB_DOMAIN, config.AUTH_CODE);
 
+const OAUTH_DATA: OauthData = {
+    client_secret: config.CLIENT_SECRET,
+    grant_type: GrantType.accessToken,    
+    redirect_uri: config.REDIRECT_URI,
+    client_id: "",
+    code: "",
+}
+
 router.get('/install', async (req, res) => {
     const query = req.query;
     const clientId = String(query.client_id);
 
     const oauthData: OauthData = {
+        ...OAUTH_DATA,
         client_id: clientId,
-        client_secret: config.CLIENT_SECRET,
-        grant_type: "authorization_code",
-        code: String(query.code),
-        redirect_uri: config.REDIRECT_URI
+        code: String(query.code),        
     };
 
     const token = await api.getTokens(oauthData);
@@ -28,6 +34,7 @@ router.get('/install', async (req, res) => {
 router.get('/delete', async (req, res) => {
     const clientId = String(req.query.client_uuid);
     await deleteTokens(clientId);
+    
     return res.sendStatus(200);    
 })
 
