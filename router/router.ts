@@ -4,6 +4,7 @@ import config from '../config';
 import AmoCRM from '../api/amo';
 import RouterConstants from './router-constants';
 import {getTotalSum, getMainContactId, getTommorowDate, taskIsExist} from '../utils';
+import { STATUS_CODES } from 'http';
 
 const router = express.Router();
 const constants = new RouterConstants();
@@ -12,21 +13,26 @@ const api = new AmoCRM(config.SUB_DOMAIN, config.AUTH_CODE);
 router.post('/', async (req: Request, res: Response) => {
     const [lead]= req.body.leads.update;
     if (!lead) {
+        res.sendStatus(200);
         return;
     }
+
     const firstWebHook = +lead.modified_user_id;
     if (!firstWebHook) {
+        res.sendStatus(200);
         return;
     }
-    console.log("kaef");
+
     const [customField] = lead.custom_fields;
     if (+customField.id !== constants.SERVICE_FIELD_ID) {
+        res.sendStatus(200);
         return;
     }
 
     const leadLinks = await api.getLeadLinks(lead.id);
     const contactId = getMainContactId(leadLinks._embedded.links);
     if (!contactId) {
+        res.sendStatus(200);
         return;
     }
 
@@ -41,9 +47,9 @@ router.post('/', async (req: Request, res: Response) => {
     if (tasksList) {
         const leadTasks = tasksList._embedded.tasks;
         if (taskIsExist(constants.TASK_TEMPLATE, leadTasks)) {
+            res.sendStatus(200);
             return;
         }
-        console.log(leadTasks);
     }
 
     const tommorow = getTommorowDate(); 
@@ -52,12 +58,14 @@ router.post('/', async (req: Request, res: Response) => {
         entity_id: +lead.id,
         responsible_user_id: +lead.responsible_user_id 
     }]);
+    res.sendStatus(200);
 })
 
 router.post('/task', async (req: Request, res: Response) => {
     const [task] = req.body.task.update;
     const [currentTask] = await api.getTasksByEntityId(task.element_id);
     if (currentTask) {
+        res.sendStatus(200);
         return;
     }
     
@@ -69,6 +77,7 @@ router.post('/task', async (req: Request, res: Response) => {
             }
         }
     }
+    res.sendStatus(200);
 })
 
 export default router;
