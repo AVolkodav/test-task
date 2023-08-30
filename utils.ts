@@ -72,29 +72,20 @@ const getUniqNumbers = (numbers:number[]):number[] => {
 // функция получает на вход массив с ценами услуг и выбранные услуги,
 // возвращает общую стоимость всех услуг
 const getTotalSum = (contactFields: Array<Customfield>, checkedSevices: Array<CustomfieldValues>): number => {
-    let totalSum = 0;
-    for (const service of checkedSevices) {
-        for (const field of contactFields) {
-            if (field.field_name === service.value) {
-                const [values] = field.values? field.values : [{value: 0}];  
-                totalSum += values.value? +values.value : 0;
-                break;
-            }
-        }
-    }
+    const totalSum = checkedSevices.reduce((result, service) => {
+        const field = contactFields.find((contactField) => contactField.field_name === service.value);
+        const [values] = field?.values  ? field.values : [{value: 0}];
+        result += values.value? +values.value : 0;
+        return result;
+        }, 
+    0);    
     return totalSum;
 }
 
-// функция получает список контактов у сделки, возвращает id основного контакта
+// функция получает список связей с контактами у сделки, возвращает id основного контакта
 const getMainContactId = (links: Link[]): number => {
-    for (const link of links) {
-        if (link.metadata) {
-            if (link.metadata.main_contact) {
-                return link.to_entity_id ? link.to_entity_id : 0;
-            }
-        }
-    }
-    return 0;
+    const mainContactLink = links.find((link) => link.metadata && link.metadata.main_contact) ;
+    return mainContactLink?.to_entity_id ? mainContactLink.to_entity_id : 0;
 }
 
 // возвращает завтрашний день в формате числа в секундах
